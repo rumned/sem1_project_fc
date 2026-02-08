@@ -1,0 +1,377 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --small: 0.625rem;
+  --normal: 1rem;
+  --medium: 1.25rem;
+  --large: 2rem;
+  --xlarge: 2.5rem;
+  --xxlarge: 4rem;
+  --rm10color: #cf8f70;
+  --rm5color: #a2cca0;
+  --rm1color: #849bb9;
+  --bodycolor: #0e182e;
+}
+
+/*Global*/
+
+h1 {
+  font-size: var(--xxlarge);
+}
+
+p {
+  font-size: var(--normal);
+}
+
+header {
+  background-color: white;
+  color: var(--bodycolor);
+  border-radius: 5px;
+  margin: var(--large) var(--normal);
+}
+
+header h1 {
+  margin: var(--small);
+  font-weight: 900;
+}
+
+body {
+  overflow: auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: "DM Sans", sans-serif;
+  color: white;
+  background-color: var(--bodycolor);
+}
+
+.spacer {
+  flex: 1;
+}
+
+body.login-page {
+  overflow: hidden;
+  height: 100vh;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--small);
+  /* flex-shrink: 0; */
+  font-size: var(--normal);
+}
+
+th {
+  color: var(--bodycolor);
+}
+
+#main-page {
+  flex: 1;
+  overflow: auto;
+}
+
+.main-page-container {
+  height: 80%;
+  padding: var(--small);
+  display: grid;
+  grid-template-rows: 3fr 1fr;
+}
+
+.main-page-container-top {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  grid-auto-flow: row;
+}
+
+.main-page-carousel {
+  margin: 0;
+  padding: var(--small);
+  height: auto;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.main-page-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: var(--small);
+  height: auto;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Hide default scrollbar */
+.main-page-carousel ul {
+  list-style: none;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: var(--small);
+  margin: 0;
+  padding: 0;
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.main-page-carousel ul::-webkit-scrollbar {
+  display: none;
+}
+
+/* Make each item take up 50% width (2 items per page) */
+.main-page-carousel li {
+  /*Account for gap in calculation */
+  min-width: calc(50% - var(--small));
+  height: 50vh;
+  scroll-snap-align: start;
+  border: 1px solid #ccc;
+  padding: var(--medium);
+  /*Prevent shrinking */
+  flex-shrink: 0;
+  /*Ensure proper box-sizing */
+  box-sizing: border-box;
+}
+
+li[data-accName="Item 2"] {
+  background-color: white;
+}
+
+/*login*/
+
+.form-group {
+  margin-bottom: 15px;
+}
+label {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #0b7dda;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: var(--medium);
+  font-family: inherit;
+}
+
+.login-button:hover {
+  background-color: var(--rm1color);
+}
+
+/* .error {
+  color: red;
+  margin-bottom: 15px;
+}
+.success {
+  color: green;
+  margin-bottom: 15px;
+} */
+
+.link {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.link a {
+  color: white;
+}
+
+/* Carousel dots navigation */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--small);
+  margin-top: var(--xlarge);
+  padding: 0;
+}
+
+.carousel-dots .dot {
+  width: var(--small);
+  height: var(--small);
+  border-radius: 50%;
+  background: var(--rm10color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carousel-dots .dot.active {
+  background: var(--rm1color);
+  width: 24px;
+  border-radius: 5px;
+}
+
+/*dashboard*/
+
+#dashboard-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--small);
+}
+
+#dashboard-header h1 {
+  flex: 1;
+}
+
+.dashboard-container {
+  display: grid;
+  grid-template-rows: auto;
+}
+
+.dashboard-banner {
+  display: flex;
+}
+
+.dashboard-text {
+  margin-left: var(--normal);
+  width: 80vw;
+}
+
+.dashboard-data {
+  border: solid 1px white;
+  margin: var(--normal);
+  padding: var(--normal);
+  color: white;
+}
+
+.dashboard-data tr,
+.dashboard-data td,
+.dashboard-data th {
+  color: white;
+}
+
+.logout-button {
+  display: inline-flex;
+  padding: 10px 20px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: var(--medium);
+  font-family: inherit;
+  text-decoration: none;
+  justify-content: center;
+  align-items: center;
+  margin: var(--small);
+  margin-right: var(--large);
+  flex-shrink: 0;
+}
+
+.logout-button:hover {
+  background-color: #da190b;
+}
+
+/*signup*/
+
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.signup-form {
+  margin: var(--large);
+  padding: var(--medium);
+  width: 40vw;
+  max-width: 800px;
+  border: solid 2px white;
+  border-radius: 4px;
+}
+
+.signup-form button {
+  max-width: 280px;
+}
+
+.signup-button-container {
+  display: flex;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+.error {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+}
+.success {
+  background: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #c3e6cb;
+}
+
+/* Show 2 vertical columns side-by-side */
+@media (max-width: 768px) {
+  .main-page-carousel ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    /* Height to fit 2 items stacked vertically */
+    max-height: calc(60vh * 2 + var(--medium));
+  }
+
+  .main-page-carousel li {
+    /* Each column takes 50% width */
+    min-width: calc(50% - var(--small));
+    width: calc(50% - var(--small));
+    /* Each item takes 50% of container height */
+    height: calc(50% - var(--small));
+  }
+
+  /* Every other item snaps to create pages with 2 columns */
+  .main-page-carousel li:nth-child(4n + 1) {
+    scroll-snap-align: start;
+  }
+
+  .main-page-carousel li:nth-child(4n + 2),
+  .main-page-carousel li:nth-child(4n + 3),
+  .main-page-carousel li:nth-child(4n) {
+    scroll-snap-align: none;
+  }
+
+  /* Hide dots on mobile portrait (where carousel isn't scrollable) */
+  .carousel-dots {
+    display: none;
+  }
+}
