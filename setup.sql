@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS Students (
     Student_Code VARCHAR(20) UNIQUE,                  -- Display ID like 'STU2024001'
     User_ID INT UNIQUE NOT NULL,                      -- LINKAGE 1: One-to-one with Users
     Name VARCHAR(100) NOT NULL,
-    Current_Semester VARCHAR(20) NOT NULL,
+    Starting_Semester VARCHAR(20) NOT NULL,
     Major VARCHAR(100) NOT NULL,
     Enrollment_Date DATE,
     Status ENUM('Active', 'Inactive', 'Graduated') DEFAULT 'Active',

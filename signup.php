@@ -242,7 +242,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
                 <div class="spacer"></div>
-            </div>  
+            </div> 
+            <footer>
+                <p>&copy Ramdzuanny Musram</p>
+                <p>All rights reserved.</p>
+            </footer> 
         <script src="script/script_signup.js"></script>                
     </body>
 </html>
