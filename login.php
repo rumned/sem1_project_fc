@@ -154,8 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       </div>
     </section>
     <footer>
-      <p>&copy Ramdzuanny Musram</p>
-      <p>All rights reserved.</p>
+      <div>&copy Ramdzuanny Musram</div>
+      <div>All rights reserved.</div>
     </footer>
   </body>
 </html>

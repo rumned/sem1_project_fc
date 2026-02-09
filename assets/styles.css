@@ -43,7 +43,7 @@ header h1 {
 
 body {
   overflow: auto;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   font-family: "DM Sans", sans-serif;
@@ -68,6 +68,7 @@ footer {
   margin: var(--small);
   font-size: var(--normal);
   overflow-y: hidden;
+  margin-top: auto;
 }
 
 th {
@@ -136,15 +137,6 @@ label {
   margin-bottom: 5px;
   font-weight: bold;
 }
-
-/* input[type="email"],
-input[type="password"] {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-} */
 
 .login-button {
   width: 100%;
@@ -222,6 +214,7 @@ input[type="password"] {
   justify-content: center;
   align-items: center;
   min-width: 70vw;
+  overflow-x: auto;
 }
 
 .dashboard-data {
@@ -308,15 +301,14 @@ td {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: var(--xxlarge);
-  min-height: 90vh;
+  flex: 1;
+  padding: var(--large) 0;
 }
 
 .signup-form {
   margin: var(--large);
   padding: var(--medium);
-  width: 40vw;
-  max-width: 800px;
+  width: clamp(300px, 60vw, 800px);
   border: solid 2px white;
   border-radius: 4px;
 }
@@ -362,4 +354,179 @@ select:focus {
   margin: 20px;
   border: 1px solid #c3e6cb;
   max-width: fit-content;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN - Mobile (768px and below)
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* Reduce font sizes for mobile */
+  :root {
+    --xxlarge: 2rem;
+    --large: 1.5rem;
+    --medium: 1rem;
+    --normal: 0.875rem;
+  }
+
+  h1 {
+    font-size: var(--large);
+  }
+
+  /* Adjust body overflow */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Header - stack vertically */
+  header {
+    margin: var(--small);
+  }
+
+  header h1 {
+    font-size: var(--large);
+  }
+
+  /* Dashboard header - stack elements */
+  #dashboard-header {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    text-align: center;
+    gap: var(--small);
+  }
+
+  #dashboard-header h1 {
+    margin: var(--small);
+  }
+
+  #dashboard-header .logout-button {
+    margin: var(--small) auto;
+    width: 90%;
+    max-width: 200px;
+  }
+
+  /* Dashboard banner - stack */
+  .dashboard-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .dashboard-text {
+    margin: var(--small);
+    max-width: 100%;
+  }
+
+  /* Dashboard container */
+  .dashboard-container {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Dashboard data boxes */
+  .dashboard-data,
+  .dashboard-box {
+    min-width: 90vw;
+    margin: var(--small);
+    padding: var(--small);
+    overflow-x: auto;
+  }
+
+  .dashboard-data h2 {
+    font-size: var(--medium);
+  }
+
+  /* Tables - make scrollable */
+  table {
+    min-width: 100%;
+    margin: var(--small);
+    font-size: 0.75rem;
+    display: block;
+    overflow-x: auto;
+    white-space: normal;
+  }
+
+  thead,
+  tbody,
+  tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .dashboard-data tr,
+  .dashboard-data th,
+  .dashboard-data td {
+    padding: 6px 4px;
+    font-size: 0.75rem;
+  }
+
+  /* Form inputs in tables */
+  .dashboard-data input,
+  .dashboard-data select {
+    padding: 4px;
+    font-size: 0.75rem;
+    max-width: min-content;
+  }
+
+  /* Buttons in dashboard */
+  .dashboard-data button {
+    max-width: 100%;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  .login-button {
+    font-size: var(--normal);
+    padding: 8px;
+  }
+
+  /* Logout button */
+  .logout-button {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+  }
+
+  /* Footer - stack vertically */
+  footer {
+    flex-direction: column;
+    gap: var(--small);
+    text-align: center;
+    font-size: 0.75rem;
+  }
+
+  /* Main page grid - stack */
+  .main-page-container-top {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  /* Signup form */
+  .signup-container {
+    padding: var(--normal) 0;
+  }
+
+  .signup-form {
+    width: 90vw;
+    margin: var(--small);
+    padding: var(--normal);
+  }
+
+  .signup-form button,
+  .dashboard-data button {
+    max-width: 100%;
+  }
+
+  /* Error and success messages */
+  .error,
+  .success {
+    margin: var(--small);
+    font-size: 0.875rem;
+    max-width: 90%;
+  }
+
+  /* Make checkboxes larger on mobile */
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
 }

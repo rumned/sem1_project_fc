@@ -480,6 +480,7 @@ function displaySemester($semester) {
 <html>
 <head>
     <title>StudenTrack - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="assets/styles.css" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -958,6 +959,10 @@ function displaySemester($semester) {
                         <table style="width: auto;">
                             <tr>
                                 <td><label>Lecturer:</label></td>
+                                <td><label>Course:</label></td>
+                                <td><label>Semester:</label></td>
+                            </tr>
+                            <tr style="background-color:whitesmoke;">
                                 <td>
                                     <select name="lecturer_id" required style="width: 250px;">
                                         <option value="">Select Lecturer</option>
@@ -971,7 +976,7 @@ function displaySemester($semester) {
                                         <?php endwhile; ?>
                                     </select>
                                 </td>
-                                <td><label>Course:</label></td>
+                                
                                 <td>
                                     <select name="course_id" required style="width: 250px;">
                                         <option value="">Select Course</option>
@@ -985,7 +990,6 @@ function displaySemester($semester) {
                                         <?php endwhile; ?>
                                     </select>
                                 </td>
-                                <td><label>Semester:</label></td>
                                 <td>
                                     <select name="semester" required style="width: 150px;">
                                         <option value="2025-1">March 2025</option>
@@ -996,18 +1000,17 @@ function displaySemester($semester) {
                                         <option value="2026-3">November 2026</option>
                                     </select>
                                 </td>
-                                <td>
-                                    <button type="submit" name="add_assignment" class="login-button">Add Assignment</button>
-                                </td>
                             </tr>
+
                         </table>
+                        <button type="submit" name="add_assignment" class="login-button">Add Assignment</button>
                     </form>
                 </div>
 
                 <!-- All Students with Edit/Delete -->
                 <div class="dashboard-data">
                     <h2>All Students (Edit/Delete)</h2>
-                    <table>
+                    <table class="edit-all-students">
                         <thead>
                             <tr>
                                 <th>Student ID</th>
@@ -1301,8 +1304,8 @@ function displaySemester($semester) {
         </div>
     </div>
     <footer>
-      <p>&copy Ramdzuanny Musram</p>
-      <p>All rights reserved.</p>
+      <div>&copy Ramdzuanny Musram</div>
+      <div>All rights reserved.</div>
     </footer>
 </body>
 </html>
