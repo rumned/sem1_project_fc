@@ -28,6 +28,10 @@ if ($role === 'student') {
 $success = '';
 $error = '';
 
+// ========================================
+// STUDENT ACTIONS
+// ========================================
+
 // Handle course registration (for students)
 if ($role === 'student' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_courses'])) {
     $selected_courses = $_POST['courses'] ?? [];
@@ -38,24 +42,34 @@ if ($role === 'student' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST
         try {
             $db->beginTransaction();
             
-            // Get student's semester
+            // Get student's current semester
             $student_semester_query = $db->prepare("SELECT Starting_Semester FROM Students WHERE Student_ID = ?");
             $student_semester_query->execute([$student_id]);
             $student_data = $student_semester_query->fetch(PDO::FETCH_ASSOC);
-            $starting_semester = $student_data['Starting_Semester'];
+            $starting_semester = $student_data['starting_semester'];
             
             foreach ($selected_courses as $course_id) {
+                // Check if already registered (any status)
                 $check = $db->prepare("SELECT * FROM Registration WHERE Student_ID = ? AND Course_ID = ? AND Semester = ?");
                 $check->execute([$student_id, $course_id, $starting_semester]);
                 
                 if ($check->rowCount() == 0) {
+                    // New registration
                     $stmt = $db->prepare("INSERT INTO Registration (Student_ID, Course_ID, Registration_Date, Semester, Status) VALUES (?, ?, CURDATE(), ?, 'Enrolled')");
+                    $stmt->execute([$student_id, $course_id, $starting_semester]);
+                } else {
+                    // Re-registering after drop - update status to Enrolled
+                    $stmt = $db->prepare("UPDATE Registration SET Status = 'Enrolled', Registration_Date = CURDATE() WHERE Student_ID = ? AND Course_ID = ? AND Semester = ?");
                     $stmt->execute([$student_id, $course_id, $starting_semester]);
                 }
             }
             
             $db->commit();
-            $success = 'Successfully registered for selected courses!';
+            
+            // Redirect to refresh page
+            header('Location: index.php?success=registered');
+            exit;
+            
         } catch (PDOException $e) {
             $db->rollBack();
             $error = 'Registration failed: ' . $e->getMessage();
@@ -70,9 +84,214 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
     try {
         $stmt = $db->prepare("UPDATE Registration SET Status = 'Dropped' WHERE Registration_ID = ? AND Student_ID = ?");
         $stmt->execute([$registration_id, $student_id]);
-        $success = 'Course dropped successfully';
+        
+        // Redirect to refresh page
+        header('Location: index.php?success=dropped');
+        exit;
+        
     } catch (PDOException $e) {
         $error = 'Error dropping course: ' . $e->getMessage();
+    }
+}
+
+// ========================================
+// LECTURER ACTIONS
+// ========================================
+
+// Handle course teaching assignment (for lecturers)
+if ($role === 'lecturer' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_courses'])) {
+    $selected_courses = $_POST['courses'] ?? [];
+    $semester = $_POST['semester'] ?? 'Fall 2024';
+    
+    if (empty($selected_courses)) {
+        $error = 'Please select at least one course';
+    } else {
+        try {
+            $db->beginTransaction();
+            
+            foreach ($selected_courses as $course_id) {
+                // Check if already assigned
+                $check = $db->prepare("SELECT * FROM Course_Lecturers WHERE Lecturer_ID = ? AND Course_ID = ? AND Semester = ?");
+                $check->execute([$lecturer_id, $course_id, $semester]);
+                
+                if ($check->rowCount() == 0) {
+                    $stmt = $db->prepare("INSERT INTO Course_Lecturers (Course_ID, Lecturer_ID, Semester) VALUES (?, ?, ?)");
+                    $stmt->execute([$course_id, $lecturer_id, $semester]);
+                }
+            }
+            
+            $db->commit();
+            
+            // Redirect to refresh page
+            header('Location: index.php?success=assigned');
+            exit;
+            
+        } catch (PDOException $e) {
+            $db->rollBack();
+            $error = 'Assignment failed: ' . $e->getMessage();
+        }
+    }
+}
+
+// Handle course unassignment (for lecturers)
+if ($role === 'lecturer' && isset($_GET['unassign']) && is_numeric($_GET['unassign'])) {
+    $assignment_id = $_GET['unassign'];
+    
+    try {
+        $stmt = $db->prepare("DELETE FROM Course_Lecturers WHERE Course_Lecturer_ID = ? AND Lecturer_ID = ?");
+        $stmt->execute([$assignment_id, $lecturer_id]);
+        
+        // Redirect to refresh page
+        header('Location: index.php?success=unassigned');
+        exit;
+        
+    } catch (PDOException $e) {
+        $error = 'Error unassigning course: ' . $e->getMessage();
+    }
+}
+
+// ========================================
+// ADMIN ACTIONS
+// ========================================
+
+// Handle admin delete student
+if ($role === 'admin' && isset($_GET['delete_student'])) {
+    $student_id_to_delete = $_GET['delete_student'];
+    try {
+        $stmt = $db->prepare("DELETE FROM Users WHERE User_ID = (SELECT User_ID FROM Students WHERE Student_ID = ?)");
+        $stmt->execute([$student_id_to_delete]);
+        header('Location: index.php?success=student_deleted');
+        exit;
+    } catch (PDOException $e) {
+        $error = 'Error deleting student: ' . $e->getMessage();
+    }
+}
+
+// Handle admin delete lecturer
+if ($role === 'admin' && isset($_GET['delete_lecturer'])) {
+    $lecturer_id_to_delete = $_GET['delete_lecturer'];
+    try {
+        $stmt = $db->prepare("DELETE FROM Users WHERE User_ID = (SELECT User_ID FROM Lecturers WHERE Lecturer_ID = ?)");
+        $stmt->execute([$lecturer_id_to_delete]);
+        header('Location: index.php?success=lecturer_deleted');
+        exit;
+    } catch (PDOException $e) {
+        $error = 'Error deleting lecturer: ' . $e->getMessage();
+    }
+}
+
+// Handle admin delete registration
+if ($role === 'admin' && isset($_GET['delete_registration'])) {
+    $reg_id = $_GET['delete_registration'];
+    try {
+        $stmt = $db->prepare("DELETE FROM Registration WHERE Registration_ID = ?");
+        $stmt->execute([$reg_id]);
+        header('Location: index.php?success=registration_deleted');
+        exit;
+    } catch (PDOException $e) {
+        $error = 'Error deleting registration: ' . $e->getMessage();
+    }
+}
+
+// Handle admin delete course assignment
+if ($role === 'admin' && isset($_GET['delete_assignment'])) {
+    $assignment_id = $_GET['delete_assignment'];
+    try {
+        $stmt = $db->prepare("DELETE FROM Course_Lecturers WHERE Course_Lecturer_ID = ?");
+        $stmt->execute([$assignment_id]);
+        header('Location: index.php?success=assignment_deleted');
+        exit;
+    } catch (PDOException $e) {
+        $error = 'Error deleting assignment: ' . $e->getMessage();
+    }
+}
+
+// Handle admin edit student
+if ($role === 'admin' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_student'])) {
+    $student_id_edit = $_POST['student_id'];
+    $name = $_POST['name'];
+    $major = $_POST['major'];
+    $semester = $_POST['semester'];
+    $status = $_POST['status'];
+    
+    try {
+        $stmt = $db->prepare("UPDATE Students SET Name = ?, Major = ?, Starting_Semester = ?, Status = ? WHERE Student_ID = ?");
+        $stmt->execute([$name, $major, $semester, $status, $student_id_edit]);
+        header('Location: index.php?success=student_updated');
+        exit;
+    } catch (PDOException $e) {
+        $error = 'Error updating student: ' . $e->getMessage();
+    }
+}
+
+// Handle admin edit lecturer
+if ($role === 'admin' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_lecturer'])) {
+    $lecturer_id_edit = $_POST['lecturer_id'];
+    $name = $_POST['name'];
+    $department = $_POST['department'];
+    
+    try {
+        $stmt = $db->prepare("UPDATE Lecturers SET Lecturer_Name = ?, Lecturer_Department = ? WHERE Lecturer_ID = ?");
+        $stmt->execute([$name, $department, $lecturer_id_edit]);
+        header('Location: index.php?success=lecturer_updated');
+        exit;
+    } catch (PDOException $e) {
+        $error = 'Error updating lecturer: ' . $e->getMessage();
+    }
+}
+
+// Handle admin add/edit registration
+if ($role === 'admin' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_registration'])) {
+    $reg_id = $_POST['registration_id'];
+    $status = $_POST['status'];
+    $grade = $_POST['grade'];
+    
+    try {
+        $stmt = $db->prepare("UPDATE Registration SET Status = ?, Grade = ? WHERE Registration_ID = ?");
+        $stmt->execute([$status, $grade, $reg_id]);
+        header('Location: index.php?success=registration_updated');
+        exit;
+    } catch (PDOException $e) {
+        $error = 'Error updating registration: ' . $e->getMessage();
+    }
+}
+
+// Display success messages from URL parameter
+if (isset($_GET['success'])) {
+    switch ($_GET['success']) {
+        case 'registered':
+            $success = 'Successfully registered for selected courses!';
+            break;
+        case 'dropped':
+            $success = 'Course dropped successfully!';
+            break;
+        case 'assigned':
+            $success = 'Successfully assigned to courses!';
+            break;
+        case 'unassigned':
+            $success = 'Successfully unassigned from course!';
+            break;
+        case 'student_deleted':
+            $success = 'Student deleted successfully!';
+            break;
+        case 'lecturer_deleted':
+            $success = 'Lecturer deleted successfully!';
+            break;
+        case 'registration_deleted':
+            $success = 'Registration deleted successfully!';
+            break;
+        case 'assignment_deleted':
+            $success = 'Assignment deleted successfully!';
+            break;
+        case 'student_updated':
+            $success = 'Student updated successfully!';
+            break;
+        case 'lecturer_updated':
+            $success = 'Lecturer updated successfully!';
+            break;
+        case 'registration_updated':
+            $success = 'Registration updated successfully!';
+            break;
     }
 }
 ?>
@@ -99,7 +318,7 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                     $student_data = $student_info->fetch(PDO::FETCH_ASSOC);
                     ?>
                     <p>Email: <strong><?php echo htmlspecialchars($email); ?> (<?php echo htmlspecialchars($role); ?>)</strong></p>
-                    <p>Student ID: <strong><?php echo htmlspecialchars($_SESSION['student_code']); ?></strong> | Starting Semester: <strong><?php echo htmlspecialchars($student_data['Starting_Semester']); ?></strong></p>
+                    <p>Student ID: <strong><?php echo htmlspecialchars($_SESSION['student_code']); ?></strong> | Current Semester: <strong><?php echo htmlspecialchars($student_data['starting_semester']); ?></strong></p>
                 <?php elseif ($role === 'lecturer'): ?>
                     <p>Email: <strong><?php echo htmlspecialchars($email); ?> (<?php echo htmlspecialchars($role); ?>)</strong></p>
                     <p>Lecturer ID: <strong><?php echo htmlspecialchars($_SESSION['lecturer_code']); ?></strong></p>
@@ -114,8 +333,6 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
     </header>
     
     <div class="dashboard-container">
-       
-
         <?php if ($success): ?>
             <div class="success"><?php echo htmlspecialchars($success); ?></div>
         <?php endif; ?>
@@ -127,7 +344,9 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
         <div class="dashboard-box">
             
             <?php if ($role === 'student'): ?>
-                <!-- STUDENT DASHBOARD -->
+                <!-- ========================================
+                     STUDENT DASHBOARD
+                     ======================================== -->
                 
                 <!-- Section 1: Available Courses with Checkboxes -->
                 <div class="dashboard-data">
@@ -146,6 +365,13 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                             </thead>
                             <tbody>
                                 <?php
+                                // Get student's current semester
+                                $student_semester_query = $db->prepare("SELECT Starting_Semester FROM Students WHERE Student_ID = ?");
+                                $student_semester_query->execute([$student_id]);
+                                $student_data_current = $student_semester_query->fetch(PDO::FETCH_ASSOC);
+                                $starting_semester = $student_data_current['starting_semester'];
+                                
+                                // Show courses not currently enrolled or completed
                                 $available_courses = $db->prepare("
                                     SELECT c.*
                                     FROM Courses c
@@ -153,11 +379,12 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                                         SELECT Course_ID 
                                         FROM Registration 
                                         WHERE Student_ID = ? 
+                                        AND Semester = ?
                                         AND Status IN ('Enrolled', 'Completed')
                                     )
                                     ORDER BY c.Course_Code
                                 ");
-                                $available_courses->execute([$student_id]);
+                                $available_courses->execute([$student_id, $starting_semester]);
                                 
                                 while ($course = $available_courses->fetch(PDO::FETCH_ASSOC)):
                                 ?>
@@ -176,7 +403,7 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                     </form>
                 </div>
 
-                <!-- Section 2: My Registrations -->
+                <!-- Section 2: My Registrations (Show ALL registrations including dropped) -->
                 <div class="dashboard-data">
                     <h2>My Course Registrations</h2>
                     <table>
@@ -193,12 +420,13 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                         </thead>
                         <tbody>
                             <?php
+                            // Show all registrations ordered by date (latest first)
                             $my_registrations = $db->prepare("
                                 SELECT r.*, c.Course_Code, c.Course_Name, c.Credits
                                 FROM Registration r
                                 JOIN Courses c ON r.Course_ID = c.Course_ID
                                 WHERE r.Student_ID = ?
-                                ORDER BY r.Semester DESC, c.Course_Code
+                                ORDER BY r.Registration_Date DESC, c.Course_Code
                             ");
                             $my_registrations->execute([$student_id]);
                             
@@ -209,7 +437,7 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                                 <td><?php echo htmlspecialchars($reg['Course_Name']); ?></td>
                                 <td><?php echo $reg['Credits']; ?></td>
                                 <td><?php echo htmlspecialchars($reg['Semester']); ?></td>
-                                <td><?php echo htmlspecialchars($reg['Status']); ?></td>
+                                <td><strong><?php echo htmlspecialchars($reg['Status']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($reg['Grade'] ?? 'N/A'); ?></td>
                                 <td>
                                     <?php if ($reg['Status'] === 'Enrolled'): ?>
@@ -265,7 +493,55 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                 </div>
 
             <?php elseif ($role === 'lecturer'): ?>
-                <!-- LECTURER DASHBOARD -->
+                <!-- ========================================
+                     LECTURER DASHBOARD
+                     ======================================== -->
+                
+                <!-- Section 0: Assign Yourself to Courses -->
+                <div class="dashboard-data">
+                    <h2>Available Courses - Assign Yourself to Teach</h2>
+                    <form method="POST" action="">
+                        <div style="margin-bottom: 15px;">
+                            <label>Semester: 
+                                <select name="semester" required>
+                                    <option value="Fall 2024">Fall 2024</option>
+                                    <option value="Spring 2025">Spring 2025</option>
+                                    <option value="Fall 2025">Fall 2025</option>
+                                </select>
+                            </label>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>Department</th>
+                                    <th>Credits</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                // Show all courses
+                                $all_courses_lec = $db->query("SELECT * FROM Courses ORDER BY Course_Code");
+                                
+                                while ($course = $all_courses_lec->fetch(PDO::FETCH_ASSOC)):
+                                ?>
+                                <tr>
+                                    <td><input type="checkbox" name="courses[]" value="<?php echo $course['Course_ID']; ?>"></td>
+                                    <td><?php echo htmlspecialchars($course['Course_Code']); ?></td>
+                                    <td><?php echo htmlspecialchars($course['Course_Name']); ?></td>
+                                    <td><?php echo htmlspecialchars($course['Course_Department']); ?></td>
+                                    <td><?php echo $course['Credits']; ?></td>
+                                    <td><?php echo htmlspecialchars($course['Description']); ?></td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                        <button class="login-button" type="submit" name="assign_courses">Assign to Selected Courses</button>
+                    </form>
+                </div>
                 
                 <!-- Section 1: My Teaching Assignments -->
                 <div class="dashboard-data">
@@ -279,12 +555,13 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                                 <th>Credits</th>
                                 <th>Semester</th>
                                 <th>Description</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
                             $my_courses = $db->prepare("
-                                SELECT c.*, cl.Semester
+                                SELECT c.*, cl.Semester, cl.Course_Lecturer_ID
                                 FROM Course_Lecturers cl
                                 JOIN Courses c ON cl.Course_ID = c.Course_ID
                                 WHERE cl.Lecturer_ID = ?
@@ -301,6 +578,9 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                                 <td><?php echo $course['Credits']; ?></td>
                                 <td><?php echo htmlspecialchars($course['Semester']); ?></td>
                                 <td><?php echo htmlspecialchars($course['Description']); ?></td>
+                                <td>
+                                    <a href="?unassign=<?php echo $course['Course_Lecturer_ID']; ?>" onclick="return confirm('Unassign from this course?')">Unassign</a>
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
@@ -404,11 +684,13 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                 </div>
 
             <?php elseif ($role === 'admin'): ?>
-                <!-- ADMIN DASHBOARD - See Everything -->
+                <!-- ========================================
+                     ADMIN DASHBOARD - Full CRUD Operations
+                     ======================================== -->
                 
-                <!-- All Students -->
+                <!-- All Students with Edit/Delete -->
                 <div class="dashboard-data">
-                    <h2>All Students</h2>
+                    <h2>All Students (Edit/Delete)</h2>
                     <table>
                         <thead>
                             <tr>
@@ -418,6 +700,7 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                                 <th>Major</th>
                                 <th>Semester</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -433,20 +716,39 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                             ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($student['Student_Code']); ?></td>
-                                <td><?php echo htmlspecialchars($student['Name']); ?></td>
+                                <td>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="student_id" value="<?php echo $student['Student_ID']; ?>">
+                                        <input type="text" name="name" value="<?php echo htmlspecialchars($student['Name']); ?>" style="width:150px;">
+                                </td>
                                 <td><?php echo htmlspecialchars($student['Email']); ?></td>
-                                <td><?php echo htmlspecialchars($student['Major']); ?></td>
-                                <td><?php echo htmlspecialchars($student['Starting_Semester']); ?></td>
-                                <td><?php echo htmlspecialchars($student['Status']); ?></td>
+                                <td>
+                                        <input type="text" name="major" value="<?php echo htmlspecialchars($student['Major']); ?>" style="width:120px;">
+                                </td>
+                                <td>
+                                        <input type="text" name="semester" value="<?php echo htmlspecialchars($student['Starting_Semester']); ?>" style="width:100px;">
+                                </td>
+                                <td>
+                                        <select name="status">
+                                            <option value="Active" <?php echo $student['Status'] === 'Active' ? 'selected' : ''; ?>>Active</option>
+                                            <option value="Inactive" <?php echo $student['Status'] === 'Inactive' ? 'selected' : ''; ?>>Inactive</option>
+                                            <option value="Graduated" <?php echo $student['Status'] === 'Graduated' ? 'selected' : ''; ?>>Graduated</option>
+                                        </select>
+                                </td>
+                                <td>
+                                        <button type="submit" name="edit_student" style="font-size:12px;">Save</button>
+                                    </form>
+                                    <a href="?delete_student=<?php echo $student['Student_ID']; ?>" onclick="return confirm('Delete this student? This will delete all their data!')">Delete</a>
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- All Lecturers -->
+                <!-- All Lecturers with Edit/Delete -->
                 <div class="dashboard-data">
-                    <h2>All Lecturers</h2>
+                    <h2>All Lecturers (Edit/Delete)</h2>
                     <table>
                         <thead>
                             <tr>
@@ -454,6 +756,7 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Department</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -469,9 +772,20 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                             ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($lecturer['Lecturer_Code']); ?></td>
-                                <td><?php echo htmlspecialchars($lecturer['Lecturer_Name']); ?></td>
+                                <td>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="lecturer_id" value="<?php echo $lecturer['Lecturer_ID']; ?>">
+                                        <input type="text" name="name" value="<?php echo htmlspecialchars($lecturer['Lecturer_Name']); ?>" style="width:150px;">
+                                </td>
                                 <td><?php echo htmlspecialchars($lecturer['Email']); ?></td>
-                                <td><?php echo htmlspecialchars($lecturer['Lecturer_Department']); ?></td>
+                                <td>
+                                        <input type="text" name="department" value="<?php echo htmlspecialchars($lecturer['Lecturer_Department']); ?>" style="width:150px;">
+                                </td>
+                                <td>
+                                        <button type="submit" name="edit_lecturer" style="font-size:12px;">Save</button>
+                                    </form>
+                                    <a href="?delete_lecturer=<?php echo $lecturer['Lecturer_ID']; ?>" onclick="return confirm('Delete this lecturer? This will delete all their data!')">Delete</a>
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
@@ -509,29 +823,29 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                     </table>
                 </div>
 
-                <!-- All Registrations -->
+                <!-- All Registrations with Edit/Delete -->
                 <div class="dashboard-data">
-                    <h2>All Registrations</h2>
+                    <h2>All Registrations (Edit/Delete)</h2>
                     <table>
                         <thead>
                             <tr>
                                 <th>Student ID</th>
                                 <th>Student Name</th>
                                 <th>Course Code</th>
-                                <th>Course Name</th>
                                 <th>Semester</th>
                                 <th>Status</th>
                                 <th>Grade</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
                             $all_registrations = $db->query("
                                 SELECT 
+                                    r.Registration_ID,
                                     s.Student_Code,
                                     s.Name as Student_Name,
                                     c.Course_Code,
-                                    c.Course_Name,
                                     r.Semester,
                                     r.Status,
                                     r.Grade
@@ -547,19 +861,34 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                                 <td><?php echo htmlspecialchars($reg['Student_Code']); ?></td>
                                 <td><?php echo htmlspecialchars($reg['Student_Name']); ?></td>
                                 <td><?php echo htmlspecialchars($reg['Course_Code']); ?></td>
-                                <td><?php echo htmlspecialchars($reg['Course_Name']); ?></td>
                                 <td><?php echo htmlspecialchars($reg['Semester']); ?></td>
-                                <td><?php echo htmlspecialchars($reg['Status']); ?></td>
-                                <td><?php echo htmlspecialchars($reg['Grade'] ?? 'N/A'); ?></td>
+                                <td>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="registration_id" value="<?php echo $reg['Registration_ID']; ?>">
+                                        <select name="status">
+                                            <option value="Enrolled" <?php echo $reg['Status'] === 'Enrolled' ? 'selected' : ''; ?>>Enrolled</option>
+                                            <option value="Completed" <?php echo $reg['Status'] === 'Completed' ? 'selected' : ''; ?>>Completed</option>
+                                            <option value="Dropped" <?php echo $reg['Status'] === 'Dropped' ? 'selected' : ''; ?>>Dropped</option>
+                                            <option value="Withdrawn" <?php echo $reg['Status'] === 'Withdrawn' ? 'selected' : ''; ?>>Withdrawn</option>
+                                        </select>
+                                </td>
+                                <td>
+                                        <input type="text" name="grade" value="<?php echo htmlspecialchars($reg['Grade'] ?? ''); ?>" style="width:50px;">
+                                </td>
+                                <td>
+                                        <button type="submit" name="edit_registration" style="font-size:12px;">Save</button>
+                                    </form>
+                                    <a href="?delete_registration=<?php echo $reg['Registration_ID']; ?>" onclick="return confirm('Delete this registration?')">Delete</a>
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- All Course-Lecturer Assignments -->
+                <!-- All Course-Lecturer Assignments with Delete -->
                 <div class="dashboard-data">
-                    <h2>Course-Lecturer Assignments</h2>
+                    <h2>Course-Lecturer Assignments (Delete)</h2>
                     <table>
                         <thead>
                             <tr>
@@ -567,12 +896,14 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                                 <th>Course Name</th>
                                 <th>Lecturer Name</th>
                                 <th>Semester</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
                             $course_lecturers = $db->query("
                                 SELECT 
+                                    cl.Course_Lecturer_ID,
                                     c.Course_Code,
                                     c.Course_Name,
                                     l.Lecturer_Name,
@@ -590,6 +921,9 @@ if ($role === 'student' && isset($_GET['drop']) && is_numeric($_GET['drop'])) {
                                 <td><?php echo htmlspecialchars($cl['Course_Name']); ?></td>
                                 <td><?php echo htmlspecialchars($cl['Lecturer_Name']); ?></td>
                                 <td><?php echo htmlspecialchars($cl['Semester']); ?></td>
+                                <td>
+                                    <a href="?delete_assignment=<?php echo $cl['Course_Lecturer_ID']; ?>" onclick="return confirm('Delete this assignment?')">Delete</a>
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
