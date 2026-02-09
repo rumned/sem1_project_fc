@@ -417,3 +417,125 @@ Password verified: YES
 Lecturer data loaded: LEC2026006
 About to redirect...
 
+=== 2026-02-09 08:57:37 ===
+Email: artlec@uni.edu
+Password length: 3
+User found: YES (ID: 38)
+Password verified: YES
+Lecturer data loaded: LEC2026006
+About to redirect...
+
+=== 2026-02-09 08:57:56 ===
+Email: admin@uni.edu
+Password length: 8
+User found: YES (ID: 1)
+Password verified: YES
+About to redirect...
+
+=== 2026-02-09 13:23:33 ===
+Email: artlec@uni.edu
+Password length: 3
+User found: YES (ID: 38)
+Password verified: YES
+Lecturer data loaded: LEC2026006
+About to redirect...
+
+=== 2026-02-09 13:28:11 ===
+Email: student0@uni.edu
+Password length: 3
+User found: YES (ID: 28)
+Password verified: YES
+Student data loaded: STU2026005
+About to redirect...
+
+=== 2026-02-09 13:47:12 ===
+Email: admin@uni.edu
+Password length: 8
+User found: YES (ID: 1)
+Password verified: YES
+About to redirect...
+
+=== 2026-02-09 13:47:54 ===
+Email: mathlec2@uni.edu
+Password length: 3
+User found: YES (ID: 41)
+Password verified: YES
+Lecturer data loaded: LEC2026009
+About to redirect...
+
+=== 2026-02-09 13:48:47 ===
+Email: alanturing@uni.edu
+Password length: 3
+User found: YES (ID: 42)
+Password verified: YES
+Student data loaded: STU2026010
+About to redirect...
+
+=== 2026-02-09 13:48:56 ===
+Email: admin@uni.edu
+Password length: 8
+User found: YES (ID: 1)
+Password verified: YES
+About to redirect...
+
+=== 2026-02-09 13:49:39 ===
+Email: charlesbabbage@uni.edu
+Password length: 3
+User found: YES (ID: 43)
+Password verified: YES
+Student data loaded: STU2026011
+About to redirect...
+
+=== 2026-02-09 14:06:04 ===
+Email: admin@uni.edu
+Password length: 8
+User found: YES (ID: 1)
+Password verified: YES
+About to redirect...
+
+=== 2026-02-09 14:06:53 ===
+Email: artlec@uni.edu
+Password length: 3
+User found: YES (ID: 38)
+Password verified: YES
+Lecturer data loaded: LEC2026006
+About to redirect...
+
+=== 2026-02-09 14:07:07 ===
+Email: admin@uni.edu
+Password length: 8
+User found: YES (ID: 1)
+Password verified: YES
+About to redirect...
+
+=== 2026-02-09 14:07:34 ===
+Email: artlec@uni.edu
+Password length: 3
+User found: YES (ID: 38)
+Password verified: YES
+Lecturer data loaded: LEC2026006
+About to redirect...
+
+=== 2026-02-09 14:07:54 ===
+Email: student0@uni.edu
+Password length: 3
+User found: YES (ID: 28)
+Password verified: YES
+Student data loaded: STU2026005
+About to redirect...
+
+=== 2026-02-09 14:09:17 ===
+Email: admin@uni.edu
+Password length: 8
+User found: YES (ID: 1)
+Password verified: YES
+About to redirect...
+
+=== 2026-02-09 14:09:56 ===
+Email: artlec@uni.edu
+Password length: 3
+User found: YES (ID: 38)
+Password verified: YES
+Lecturer data loaded: LEC2026006
+About to redirect...
+

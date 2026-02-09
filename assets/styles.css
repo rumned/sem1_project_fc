@@ -15,6 +15,7 @@
   --rm5color: #a2cca0;
   --rm1color: #849bb9;
   --bodycolor: #0e182e;
+  --loginbtncolor: #0b7dda;
 }
 
 /*Global*/
@@ -32,6 +33,7 @@ header {
   color: var(--bodycolor);
   border-radius: 5px;
   margin: var(--large) var(--normal);
+  margin-bottom: 0;
 }
 
 header h1 {
@@ -78,71 +80,49 @@ th {
 }
 
 .main-page-container {
-  height: 80%;
+  height: 100%;
   padding: var(--small);
-  display: grid;
-  grid-template-rows: 3fr 1fr;
+  display: flex;
 }
 
 .main-page-container-top {
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  grid-template-columns: 4fr 1fr;
   grid-auto-flow: row;
 }
 
-.main-page-carousel {
-  margin: 0;
-  padding: var(--small);
+.main-page-subtitle {
+  padding: var(--normal);
+  padding-left: 0;
+  padding-top: 0;
+  font-size: var(--large);
+}
+
+.main-page-hero {
+  margin: var(--small);
+  padding: var(--normal);
+  border-radius: 5px;
   height: auto;
   max-width: 100%;
   overflow: hidden;
+  background:
+    linear-gradient(to left, rgba(255, 255, 255, 0.7), rgba(0, 0, 50, 0.5)),
+    url(sem1class.jpg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .main-page-login {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 1fr 3fr 1fr 1fr;
+  grid-auto-flow: column;
   align-items: center;
   margin: 0;
   padding: var(--small);
   height: auto;
   max-width: 100%;
   overflow: hidden;
-}
-
-/* Hide default scrollbar */
-.main-page-carousel ul {
-  list-style: none;
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  gap: var(--small);
-  margin: 0;
-  padding: 0;
-  /* Hide scrollbar */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.main-page-carousel ul::-webkit-scrollbar {
-  display: none;
-}
-
-/* Make each item take up 50% width (2 items per page) */
-.main-page-carousel li {
-  /*Account for gap in calculation */
-  min-width: calc(50% - var(--small));
-  height: 50vh;
-  scroll-snap-align: start;
-  border: 1px solid #ccc;
-  padding: var(--medium);
-  /*Prevent shrinking */
-  flex-shrink: 0;
-  /*Ensure proper box-sizing */
-  box-sizing: border-box;
-}
-
-li[data-accName="Item 2"] {
-  background-color: white;
 }
 
 /*login*/
@@ -156,14 +136,15 @@ label {
   margin-bottom: 5px;
   font-weight: bold;
 }
-input[type="email"],
+
+/* input[type="email"],
 input[type="password"] {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   box-sizing: border-box;
-}
+} */
 
 .login-button {
   width: 100%;
@@ -178,17 +159,8 @@ input[type="password"] {
 }
 
 .login-button:hover {
-  background-color: var(--rm1color);
+  background-color: var(--rm5color);
 }
-
-/* .error {
-  color: red;
-  margin-bottom: 15px;
-}
-.success {
-  color: green;
-  margin-bottom: 15px;
-} */
 
 .link {
   text-align: center;
@@ -197,30 +169,6 @@ input[type="password"] {
 
 .link a {
   color: white;
-}
-
-/* Carousel dots navigation */
-.carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: var(--small);
-  margin-top: var(--xlarge);
-  padding: 0;
-}
-
-.carousel-dots .dot {
-  width: var(--small);
-  height: var(--small);
-  border-radius: 50%;
-  background: var(--rm10color);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.carousel-dots .dot.active {
-  background: var(--rm1color);
-  width: 24px;
-  border-radius: 5px;
 }
 
 /*dashboard*/
@@ -236,6 +184,12 @@ input[type="password"] {
 #dashboard-header h1 {
   flex: 1;
   margin: var(--small) var(--large);
+}
+
+#dashboard-header .logout-button {
+  margin: var(--small) var(--large);
+  padding: 10px 20px;
+  font-size: var(--medium);
 }
 
 .dashboard-banner {
@@ -275,7 +229,7 @@ input[type="password"] {
 }
 
 .dashboard-data h2 {
-  margin-bottom: var(--small);
+  margin: var(--small) 0;
   padding-bottom: var(--small);
   color: var(--bodycolor);
   font-size: var(--large);
@@ -307,6 +261,10 @@ td {
   background-color: var(--rm1color);
 }
 
+.dashboard-data tbody tr:nth-child(odd) {
+  background-color: whitesmoke;
+}
+
 .dashboard-data td {
   color: var(--bodycolor);
   padding: var(--small);
@@ -320,23 +278,28 @@ td {
 
 .logout-button {
   display: inline-flex;
-  padding: 10px 20px;
+  padding: 5px 10px;
   background-color: red;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: var(--medium);
+  font-size: var(--normal);
   font-family: inherit;
   text-decoration: none;
   justify-content: center;
   align-items: center;
-  margin: var(--small) var(--large);
+  margin: var(--small);
   flex-shrink: 0;
 }
 
+.logout-button a {
+  color: white;
+  text-decoration: none;
+}
+
 .logout-button:hover {
-  background-color: #da190b;
+  background-color: var(--rm10color);
 }
 
 /*signup*/
@@ -371,9 +334,10 @@ input,
 select {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 2px solid #ddd;
   border-radius: 5px;
   font-size: 14px;
+  background-color: white;
 }
 input:focus,
 select:focus {
@@ -398,40 +362,4 @@ select:focus {
   margin: 20px;
   border: 1px solid #c3e6cb;
   max-width: fit-content;
-}
-
-/* Show 2 vertical columns side-by-side */
-@media (max-width: 768px) {
-  .main-page-carousel ul {
-    flex-direction: row;
-    flex-wrap: wrap;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    /* Height to fit 2 items stacked vertically */
-    max-height: calc(60vh * 2 + var(--medium));
-  }
-
-  .main-page-carousel li {
-    /* Each column takes 50% width */
-    min-width: calc(50% - var(--small));
-    width: calc(50% - var(--small));
-    /* Each item takes 50% of container height */
-    height: calc(50% - var(--small));
-  }
-
-  /* Every other item snaps to create pages with 2 columns */
-  .main-page-carousel li:nth-child(4n + 1) {
-    scroll-snap-align: start;
-  }
-
-  .main-page-carousel li:nth-child(4n + 2),
-  .main-page-carousel li:nth-child(4n + 3),
-  .main-page-carousel li:nth-child(4n) {
-    scroll-snap-align: none;
-  }
-
-  /* Hide dots on mobile portrait (where carousel isn't scrollable) */
-  .carousel-dots {
-    display: none;
-  }
 }

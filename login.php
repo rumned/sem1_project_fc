@@ -118,25 +118,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <section id="main-page">
       <div class="main-page-container">
         <div class="main-page-container-top">
-          <div class="main-page-carousel">
-            <h2>Your student life, in one portal</h2>
-            <ul>
-              <li data-accName="Item 1"><h2>Register for your classes</li>
-              <li data-accName="Item 2"><h2>Page 2</h2></li>
-              <li data-accName="Item 3"><h2>Update your information</h2></li>
-              <li data-accName="Item 4"><h2>Page 4</h2></li>
-              <li data-accName="Item 5"><h2>Keep track of your results</h2></li>
-              <li data-accName="Item 6"><h2>Page 6</h2></li>
-            </ul>
+          <div class="main-page-hero">
+            <h2 class="main-page-subtitle">Your student life, in one portal</h2>
           </div>
           <div class="main-page-login">
-                <h2>Login</h2>
+            <div class="spacer"></div>
+            <div>
+              <h2 style="text-align:center;">Login</h2>
     
               <?php if ($error): ?>
                 <div class="error"><?php echo $error; ?></div>
               <?php endif; ?>
     
-                <form method="POST" action="">
+              <form method="POST" action="">
                     <div class="form-group">
                         <label>Email:</label>
                         <input type="email" name="email" size="35" required >
@@ -148,14 +142,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                     
                     <button class="login-button" type="submit">Login</button>
-                </form>
-                <div class="link">
+              </form>
+              <div class="link">
                   Don't have an account? <a href="signup.php">Sign up here</a>
-                </div>
+              </div>
+            </div>
+            <div class="spacer"></div>
+            <div class="spacer"></div>
           </div>
-        </div>
-        <div class="main-page-container-bottom">
-          <div class="carousel-dots" id="carousel-dots"></div>
         </div>
       </div>
     </section>
@@ -163,6 +157,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <p>&copy Ramdzuanny Musram</p>
       <p>All rights reserved.</p>
     </footer>
-    <script src="script/script.js"></script>
   </body>
 </html>
